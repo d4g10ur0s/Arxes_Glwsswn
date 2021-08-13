@@ -1,0 +1,77 @@
+to swsto
+
+1. <program> -> PROGRAM <name> '\n' [{<funct>}] <main_program>
+
+2. <name> -> 'a-z' | 'A-Z' | '0-9' | ε | 'a-z'<name> | 'A-Z'<name> | '0-9'<name> 
+
+3. <funct> -> FUNCTION <f_name> '(' <params>[ { ',' <params>} ] ')' '\n' [<var_declaration>[ {'\n'<var_declaration>} | {<var_declaration>} | {'\t'<var_declaration>} ] ] <commands>[{<commands>}] RETURN <to_ret> END_FUNCTION
+	*** <f_name> -> <name>   ***
+	***<params> -> <variable> ***
+
+4. <var_declaration> -> VARS <typos_kai_metavlhth> [ {',' <variable>} ] ';'
+
+5. <typos_kai_metavlhth> -> <int_name> | <char_name> | <int_name>'['INTEGER']' | <char_name>'['INTEGER']'
+
+**6. INTEGER -> 0-9 | 0-9INTEGER | ε
+
+**7. CHAR -> 'a-z' | 'A-Z' | '0-9' | 'a-z'CHAR | 'A-Z'CHAR | '0-9'CHAR | ε
+
+8. <variable> -> <name> | <name>'['INTEGER']'
+
+9. <int_name> -> INTEGER <i_name>
+
+   <i_name> -> <name>
+
+10. <char_name> -> CHAR <c_name>
+    <c_name> -> <name> 
+
+11. <to_ret> -> <i_name> | <c_name> | INTEGER | CHAR
+
+12. <main_program> -> STARTMAIN [<var_declaration>] <commands>[{<commands>}] ENDMAIN
+
+13. <commands> -> <ana8esh> | <vroxos> | <elegxos> | <ektypwsh> | <termatismos_vroxoy> | <sxolia> | <ana8esh><commands> | <vroxos><commands> | <elegxos><commands> | <ektypwsh><commands> | <termatismos_vroxoy><commands> | <sxolia><commands> | ε
+
+14. <metavlhtes> -> <int_name> | <char_name>
+ 
+15. <ana8esh> -> <metavlhtes> = <stmt>;
+
+16. <stmt> -> INTEGER | CHAR | <metavlhtes> | <parastash> | *<function_call>
+
+17. <parastash> -> <term> | <parastash> + <term> | <parastash> - <term>
+
+18. <term> -> <power> | <term> * <power> | <term> / <power> 
+
+19. <power> -> <fact> ^ <power> | <fact>
+
+20. <fact> -> <var> | '(' <parastash> ')'
+
+21. <var> -> INTEGER | <i_name>
+
+22. <ektypwsh> -> PRINT'(' "CHAR"[ {,<metavlhtes>}] ')'
+
+23. <sxolia> -> '%'CHAR '\n'
+
+24. <vroxos> -> <while_loop> | <for_loop>
+
+25. <while_loop> -> WHILE '(' <syn8hkh> ')' <commands> ENDWHILE
+
+26. <syn8hkh> -> <parastash> | <parastash> < <parastash> | <parastash> <= <parastash> | <parastash> >= <parastash> | <parastash> > <parastash> | <parastash> == <parastash> | <syn8hkh> OR <syn8hkh> | <syn8hkh> AND <syn8hkh> | ε
+
+27. <for_loop> -> FOR <i_name> := <var> TO INTEGER STEP INTEGER <commands> ENDFOR
+
+28. <elegxos> -> <if_clause> | <switch_clause>
+
+29. <if_clause> -> IF '(' <syn8hkh> ')' THEN <commands> [{ELSEIF'('syn8hkh')'<commands>}] [ELSE<commands>] ENDIF
+
+30. <switch_clause> -> SWITCH'('<parastash>')' CASE'('<parastash>'):'<commands> [CASE'('<parastash>'):'<commands>] [DEFAULT':'<commands>] ENDSWITCH
+
+31. <termatismos_vroxou> -> BREAK';'
+
+
+
+
+
+
+
+
+
