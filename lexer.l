@@ -73,14 +73,20 @@ NAME     *{LETTER}{ALPHANUM}*
 
 {NAME}        {token_print(NAME); return M_NAME;}
 
-\"{NAME}\"    {token_print(NAME); return KEIMENO;}
+\"{NAME}\"    {token_print(KEIMENO); return KEIMENO;}
 
 <<EOF>>       {token_print(EOF); return 0;}
 {WHITESPACE}  {}
 \n            {line_num++;}
-.             {yyerror("Illegal character", 0);yyless(1);}
+.             {yyerror("Illegal character", 0); yyless(1);}
 
 %%
+
+
+/* ====[USER FUNCTIONS BLOCK]==== */
+/* ====[END USER FUNCTIONS BLOCK]==== */
+
+/* main */
 
 int main(int argc, char *argv[]){
     int token;
@@ -104,4 +110,34 @@ int main(int argc, char *argv[]){
     fclose(yyin);
     yyterminate();
 }
-/*end main*/
+/* end main */
+
+void yyerror(char *message, int type)
+{
+    error_count++;
+
+    if(type==0){
+		printf("-> ERROR at line %d caused by %s: %s\n", lineno, yytext, message);
+    }else if(type==1){
+		*str_buf_ptr = '\0'; // String or Comment Error. Cleanup old chars stored in buffer.
+		printf("-> ERROR at line %d near \"%s\": %s\n", lineno, str_buf, message);
+	}
+    if(MAX_ERRORS <= 0) return;
+    if(error_count == MAX_ERRORS){
+        printf("Max errors detected\n");
+        exit(-1);
+    }
+}
+
+void token_print(int token_id){
+    if(FLEX_DEBUG && SHOW_TOKENS){
+        printf("TOKEN FOUND: %s | TOKEN NUMBER: %d | LINE: %d\n", yytext, token_id, lineno);
+    }
+}
+
+void comment_print(){
+    if(FLEX_DEBUG && SHOW_COMMENTS){
+        int line = line_init > 0 ? lineno-line_init : lineno;
+        printf("COMMENT FOUND: %s | TOKEN NUMBER: %d | LINE: %d\n", str_buf, T_STRING, line);
+    }
+}
