@@ -38,3 +38,15 @@
 #define NOT_OP 33 // !
 #define MINUS_OP 34 // -
 #define PLUS_OP 35 // +
+#define MUL_OP 36 // *
+#define DIV_OP 37 // /
+
+#define L_PAREN 38 // (
+#define R_PAREN 39
+#define SEMICOLON 40 // ;
+#define COMMA 41 // ,
+#define ASSIGN 42 // =
+#define L_BRACK 43 // [
+#define R_BRACK 44
+#define L_BRACE 45// {
+#define R_BRACE 46

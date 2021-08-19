@@ -44,11 +44,32 @@ NAME     *{LETTER}{ALPHANUM}*
 "BREAK"       {token_print(BREAK); return BREAK;}
 "TO"          {token_print(TO); return TO;}
 "STEP"        {token_print(STEP); return STEP;}
-"RETURN"      {token_print(RETURN); return RETURN;}
+"RETURN"                                                {token_print(RETURN); return RETURN;}
 
+/* TELESTES */
+"OR"                                                    {token_print(OR_OP); return OR_OP;}
+"AND"                                                   {token_print(AND_OP); return AND_OP;}
+"=="                                                    {token_print(EQ_OP); return EQ_OP;}
+"!="                                                    {token_print(INEQ_OP); return INEQ_OP;}
+">=" | "<=" | ">" | "<"                                 {token_print(SUG_OP); return SUG_OP;}
+"+"                                                     {token_print(PLUS_OP); return PLUS_OP;}
+"-"                                                     {token_print(MINUS_OP); return MINUS_OP;}
+"*"                                                     {token_print(MUL_OP); return MUL_OP;}
+"/"                                                     {token_print(DIV_OP); return DIV_OP;}
+"!"                                                     {token_print(NOT_OP); return NOT_OP;}
 
+/* OTHER LEXICAL TOKENS */
+"("                                                     {token_print(L_PAREN); return L_PAREN;}
+")"                                                     {token_print(R_PAREN); return R_PAREN;}
+";"                                                     {token_print(SEMICOLON); return SEMICOLON;}
+","                                                     {token_print(COMMA); return COMMA;}
+"="                                                     {token_print(ASSIGN); return ASSIGN;}
+"["                                                     {token_print(L_BRACK); return L_BRACK;}
+"]"                                                     {token_print(R_BRACK); return R_BRACK;}
+"{"                                                     {token_print(L_BRACE); return L_BRACE;}
+"}"                                                     {token_print(R_BRACE); return R_BRACE;}
 
-/* non terminal symbols */
+/* NON-TERMINA SYMBOLS */
 
 {NAME}        {token_print(NAME); return M_NAME;}
 
