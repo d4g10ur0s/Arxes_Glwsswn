@@ -14,6 +14,9 @@
 
   /* oi orismoi mas */
 WHITESPACE          [ \t]
+NEWLINE             [ \n]
+DIGIT               [0-9]
+NUM                 [0-9]{DIGIT}*
 
 %%
  /* termatika symvola */
@@ -65,11 +68,15 @@ WHITESPACE          [ \t]
 "]"                                                     {token_print(R_BRACK); return R_BRACK;}
 "{"                                                     {token_print(L_BRACE); return L_BRACE;}
 "}"                                                     {token_print(R_BRACE); return R_BRACE;}
+  /* ta dika mas */
 
-<<EOF>>       {token_print(EOF); return 0;}
-{WHITESPACE}  {}
-\n            {line_num++;}
-.             {yyerror("Illegal character", 0); yyless(1);}
+
+{DIGIT}                                                   {token_print(DIGIT); return DIGIT;}
+{NUM}                                                     {token_print(NUM); return NUM;}
+<<EOF>>              {token_print(EOF); return 0;}
+{WHITESPACE}         {}
+{NEWLINE}            {line_num++;}
+.                    {yyerror("Illegal character", 0); yyless(1);}
 
 
 %%
