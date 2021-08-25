@@ -3,9 +3,14 @@
   #include <stdio.h>
   #include <stdlib.h>
   #include "termatika.h"
+  #include <unistd.h>
+  #include <math.h>
+  #include <string.h>
 
+  int lineno=1; // Program's line number
+  int line_init=-1; // For multiline comments & strings
+  int error_count = 0;
 
-  int line_num = 1;
 %}
 
 
@@ -21,17 +26,17 @@ WHITESPACE [ /t]
 
 %%
 
-"PROGRAM"           {token_print(PROGRAM); return PROGRAM;}
-"FUNCTION"          {token_print(FUNCTION); return FUNCTION;}
-"ENDFUNCTION"       {token_print(ENDFUNCTION); return ENDFUNCTION;}
-"VARS"              {token_print(VARS); return VARS;}
-"INTEGER"           {token_print(INTEGER); return INTEGER;}
-"CHAR"              {token_print(CHAR); return CHAR;}
-"START_MAIN"        {token_print(START_MAIN); return START_MAIN;}
-"END_MAIN"          {token_print(END_MAIN); return END_MAIN;}
-"WHILE"             {token_print(WHILE); return WHILE;}
-"ENDWHILE"          {token_print(ENDWHILE); return ENDWHILE;}
-"FOR"               {token_print(FOR); return FOR;}
+"PROGRAM"                                               {token_print(PROGRAM); return PROGRAM;}
+"FUNCTION"                                              {token_print(FUNCTION); return FUNCTION;}
+"ENDFUNCTION"                                           {token_print(ENDFUNCTION); return ENDFUNCTION;}
+"VARS"                                                  {token_print(VARS); return VARS;}
+"INTEGER"                                               {token_print(INTEGER); return INTEGER;}
+"CHAR"                                                  {token_print(CHAR); return CHAR;}
+"START_MAIN"                                            {token_print(START_MAIN); return START_MAIN;}
+"END_MAIN"                                              {token_print(END_MAIN); return END_MAIN;}
+"WHILE"                                                 {token_print(WHILE); return WHILE;}
+"ENDWHILE"                                              {token_print(ENDWHILE); return ENDWHILE;}
+"FOR"                                                   {token_print(FOR); return FOR;}
 "ENDFOR"            {token_print(ENDFOR); return ENDFOR;}
 "IF"                {token_print(IF); return IF;}
 "THEN"              {token_print(THEN); return THEN;}
