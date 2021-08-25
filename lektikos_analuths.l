@@ -11,18 +11,23 @@
   int line_init=-1; // For multiline comments & strings
   int error_count = 0;
 
+  extern int yylval;
+
+  void token_print(int token_id);
 %}
 
 
 %option noyywrap
-%option case-sensitive
+%option case-insensitive
 %option yylineno
 
-LETTER   [a-zA-Z]
-DIGIT    [0-9]
-ALPHANUM ({LETTER}|{DIGIT})
-NAME     {LETTER}
-WHITESPACE [ /t]
+LETTER                          [a-zA-Z]
+DIGIT                           [0-9]
+NUM                             {DIGIT}+
+NAME                            {LETTER}+
+ALPHANUM                        \"({NAME}|{NUM})\"
+WHITESPACE                      [ /t]
+NEWLINE                         [ /n]
 
 %%
 
@@ -37,20 +42,23 @@ WHITESPACE [ /t]
 "WHILE"                                                 {token_print(WHILE); return WHILE;}
 "ENDWHILE"                                              {token_print(ENDWHILE); return ENDWHILE;}
 "FOR"                                                   {token_print(FOR); return FOR;}
-"ENDFOR"            {token_print(ENDFOR); return ENDFOR;}
-"IF"                {token_print(IF); return IF;}
-"THEN"              {token_print(THEN); return THEN;}
-"ELSEIF"            {token_print(ELSEIF); return ELSEIF;}
-"ELSE"              {token_print(ELSE); return ELSE;}
-"ENDIF"             {token_print(ENDIF); return ENDIF;}
-"SWITCH"            {token_print(SWITCH); return SWITCH;}
-"CASE"              {token_print(CASE); return CASE;}
-"DEFAULT"           {token_print(DEFAULT); return DEFAULT;}
-"ENDSWITCH"         {token_print(ENDSWITCH); return ENDSWITCH;}
-"BREAK"             {token_print(BREAK); return BREAK;}
-"TO"                {token_print(TO); return TO;}
-"STEP"              {token_print(STEP); return STEP;}
-"RETURN"            {token_print(RETURN); return RETURN;}
+"ENDFOR"                                                {token_print(ENDFOR); return ENDFOR;}
+"IF"                                                    {token_print(IF); return IF;}
+"THEN"                                                  {token_print(THEN); return THEN;}
+"ELSEIF"                                                {token_print(ELSEIF); return ELSEIF;}
+"ELSE"                                                  {token_print(ELSE); return ELSE;}
+"ENDIF"                                                 {token_print(ENDIF); return ENDIF;}
+"SWITCH"                                                {token_print(SWITCH); return SWITCH;}
+"CASE"                                                  {token_print(CASE); return CASE;}
+"DEFAULT"                                               {token_print(DEFAULT); return DEFAULT;}
+"ENDSWITCH"                                             {token_print(ENDSWITCH); return ENDSWITCH;}
+"BREAK"                                                 {token_print(BREAK); return BREAK;}
+"TO"                                                    {token_print(TO); return TO;}
+"STEP"                                                  {token_print(STEP); return STEP;}
+"RETURN"                                                {token_print(RETURN); return RETURN;}
+
+  /* telestes */
+
 "OR"                {token_print(OR_OP); return OR_OP;}
 "AND"                                                   {token_print(AND_OP); return AND_OP;}
 "=="                                                    {token_print(EQ_OP); return EQ_OP;}
@@ -72,14 +80,18 @@ WHITESPACE [ /t]
 "{"                                                     {token_print(L_BRACE); return L_BRACE;}
 "}"                                                     {token_print(R_BRACE); return R_BRACE;}
 
-{NAME}        {token_print(NAME); return M_NAME;}
+  /* ta dika mas */
 
-"\""{NAME}"\""    {token_print(KEIMENO); return KEIMENO;}
+{LETTER}                                                  {token_print(LETTER); return LETTER;}
+{DIGIT}                                                   {token_print(DIGIT); return DIGIT;}
+{NUM}                                                     {token_print(NUM); return NUM;}
+{NAME}                                                    {token_print(NAME); return M_NAME;}
+{ALPHANUM}                                                {token_print(NAME); return M_NAME;}
 
-<<EOF>>       {token_print(EOF); return 0;}
-{WHITESPACE}  {}
-\n            {line_num++;}
-.             {yyerror("Illegal character", 0); yyless(1);}
+<<EOF>>                                                   {token_print(EOF); return 0;}
+{WHITESPACE}                                              {}
+NEWLINE                                                   {line_num++;}
+.                                                         {yyerror("Illegal character", 0); yyless(1);}
 
 
 
@@ -109,4 +121,13 @@ int main(int argc, char *argv[]){
     fclose(yyin);
     yyterminate();
 }
+
 /* end main */
+
+/* emfanish termatikwn */
+
+void token_print(int token_id){
+    if(FLEX_DEBUG && SHOW_TOKENS){
+        printf("TOKEN FOUND: %s | TOKEN NUMBER: %d | LINE: %d\n", yytext, token_id, lineno);
+    }
+}
