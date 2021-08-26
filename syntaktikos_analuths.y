@@ -116,7 +116,7 @@ void yyerror(const char *message);
 %left ADD_OP
 %left MUL_OP
 %left NOT_OP
-%left T_LPAREN T_RPAREN T_LBRACK T_RBRACK
+%left L_PAREN R_PAREN L_BRACK R_BRACK
 
 %nonassoc LOWER_THAN_ELSE
 %nonassoc T_ELSE
@@ -166,25 +166,49 @@ command:                                              assign_statement
                                                     | SEMICOLON
                                                     | print_statement
                                                     ;
-assignment:                                           variable ASSIGN expression
+assignment:                                           variable ASSIGN expression SEMICOLON
                                                     ;
-expression:                                           expression OR_OP expression
-                                                    | expression AND_OP expression
-                                                    | expression EQU_OP expression
-                                                    | expression INEQU_OP expression
-                                                    | expression SUG_OP expression
-                                                    | expression MINUS_OP expression
+expression:                                           expression MINUS_OP expression
                                                     | expression PLUS_OP expression {$$ = $1 + $3}
                                                     | expression MUL_OP expression
                                                     | expression DIV_OP expression
-                                                    | NOT_OP expression
+                                                    | logic_expression
                                                     | variable
                                                     | constant
                                                     | L_PAREN expression R_PAREN
                                                     | %empty {}
                                                     ;
+logic_expression:                                     expression OR_OP expression
+                                                    | expression AND_OP expression
+                                                    | expression EQU_OP EQU_OP expression
+                                                    | expression INEQU_OP expression
+                                                    | expression SUG_OP expression
+                                                    | NOT_OP expression
+                                                    ;
+
 
 variable:                                             typename ID
+                                                    ;
+if_statement:                                         IF L_PAREN logic_expression R_PAREN THEN
+                                                      NEWLINE command_list
+                                                      NEWLINE if_tail
+                                                    ;
+if_tail:                                              ELSEIF L_PAREN logic_expression R_PAREN NEWLINE
+                                                      command_list NEWLINE
+                                                      if_tail
+                                                    | ELSE NEWLINE
+                                                      command_list
+                                                      NEWLINE ENDIF
+                                                    ;
+while_statement:                                      WHILE L_PAREN logic_expression R_PAREN
+                                                      NEWLINE command_list
+                                                      NEWLINE ENDWHILE
+                                                    ;
+for_statement:                                        FOR counter ':'ASSIGN NUM TO NUM STEP NUM NEWLINE
+                                                      command_list
+                                                      NEWLINE ENDFOR
+                                                    ;
+counter:                                              ID
                                                     ;
 
 /**exoun elegx8ei**/
@@ -240,20 +264,6 @@ declarations:             declarations decltype typename variabledefs SEMICOLON
                         | decltype typename variabledefs SEMICOLON
                         ;
 expression_statement:     general_expression SEMICOLON
-                        ;
-if_statement:             IF L_PAREN
-                          general_expression R_PAREN statement
-                          if_tail
-                        ;
-if_tail:                  ELSE
-                          statement
-                        | %empty %prec LOWER_THAN_ELSE
-                        ;
-while_statement:          WHILE L_PAREN
-                          general_expression R_PAREN statement
-                        ;
-for_statement:            FOR L_PAREN
-                            optexpr SEMICOLON optexpr SEMICOLON optexpr R_PAREN statement
                         ;
 optexpr:                  general_expression
                         | %empty {}
