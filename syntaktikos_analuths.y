@@ -19,17 +19,12 @@ extern void yyterminate();
 
 
 /** Bison specific variables **/
-int error_count=0;
-int flag_err_type=0; // 0: Token Error (YYTEXT) || 1: String Error (STRBUF)
-int scope=0;
-
-HASHTBL *hashtbl;
+int error_count = 0;
+int flag_err_type = 0; // 0: Token Error (YYTEXT) || 1: String Error (STRBUF)
 
 /** Bison specific functions **/
 void yyerror(const char *message);
 
-/** TODO: Write why split T_ICONST/T_FCONST **/
-/** TODO: constant Union with type and val **/
 %}
 
 
@@ -68,8 +63,14 @@ void yyerror(const char *message);
 %token <strval> RETURN              "return"
 
 /** TA DIKA MAS **/
-%token <strval> M_NAME              "m_name"
-%token <strval> KEIMENO             "keimeno"
+%token <strval> LETTER              "[a-zA-Z]"
+%token <strval> DIGIT               "[0-9]"
+%token <strval> NUM                 "{DIGIT}+"
+%token <strval> NAME                "{LETTER}+"
+%token <strval> ALPHANUM            "({LETTER}|{DIGIT})"
+%token <strval> ID                  "({LETTER}+{DIGIT}*)"
+%token <strval> WHITESPACE          "[ /t]"
+%token <strval> NEWLINE             "[ /n]"
 
 /** TELESTES **/
 %token <strval> OR_OP               "||"
@@ -91,12 +92,13 @@ void yyerror(const char *message);
 %token <strval> R_BRACK             "]"
 %token <strval> L_BRACE             "{"
 %token <strval> R_BRACE             "}"
+%token <strval> COMMA               ","
 
 /** END OF FILE **/
 %token <strval> T_EOF 0             "end of file"
 
 
-%type <strval> program global_declaration global_declarations typename standard_type listspec dims
+%type <strval> program multiple_func_declaration  global_declaration global_declarations typename standard_type listspec dims
 %type <strval> id_list initializer init_value expression variable general_expression assignment expression_list listexpression
 %type <strval> init_values var_declaration
 %type <strval> parameter_types
@@ -119,24 +121,79 @@ void yyerror(const char *message);
 %nonassoc LOWER_THAN_ELSE
 %nonassoc T_ELSE
 
-
-
 %start program
 
 %%
-program:                  global_declarations main_function
-                        ;
+program:                                              PROGRAM ID NEWLINE multiple_func_declaration main_program
+                                                    ;
+
+multiple_func_declaration:                            func_declaration
+                                                    | multiple_func_declaration NEWLINE func_declaration
+                                                    | %empty {}
+                                                    ;
+func_declaration:                                     FUNCTION full_par_func_header NEWLINE decl_statements command_list RETURN to_ret END_FUNCTION
+                                                    ;
+full_par_func_header:                                 ID L_PAREN parameter_list R_PAREN
+                                                    ;
+parameter_list:                                       parameter_list COMMA typename ID
+                                                    | typename ID
+                                                    | %empty {}
+                                                    ;
+typename:                                             CHAR
+                                                    | INTEGER
+                                                    ;
+var_declaration:                                      VARS typename ID
+                                                    | VARS typename ID L_BRACK NUM R_BRACK
+                                                    | %empty {}
+                                                    ;
+vars_declaration:                                     vars_declaration COMMA var_declaration SEMICOLON
+                                                    | var_declaration SEMICOLON
+                                                    | %empty {}
+                                                    ;
+command_list:                                         command_list NEWLINE command
+                                                    | command
+                                                    | %empty {}
+                                                    ;
+command:                                              assign_statement
+                                                    | if_statement
+                                                    | while_statement
+                                                    | for_statement
+                                                    | switch_statement
+                                                    | return_statement
+                                                    | comp_statement
+                                                    | CONTINUE SEMICOLON
+                                                    | BREAK SEMICOLON
+                                                    | SEMICOLON
+                                                    | print_statement
+                                                    ;
+assignment:                                           variable ASSIGN expression
+                                                    ;
+expression:                                           expression OR_OP expression
+                                                    | expression AND_OP expression
+                                                    | expression EQU_OP expression
+                                                    | expression INEQU_OP expression
+                                                    | expression SUG_OP expression
+                                                    | expression MINUS_OP expression
+                                                    | expression PLUS_OP expression {$$ = $1 + $3}
+                                                    | expression MUL_OP expression
+                                                    | expression DIV_OP expression
+                                                    | NOT_OP expression
+                                                    | variable
+                                                    | constant
+                                                    | L_PAREN expression R_PAREN
+                                                    | %empty {}
+                                                    ;
+
+variable:                                             typename ID
+                                                    ;
+
+/**exoun elegx8ei**/
+
 global_declarations:      global_declarations global_declaration
                         | %empty {}
                         ;
 global_declaration:     global_var_declaration
                         | func_declaration
-                        ;
-typename:                 standard_type
-                        | M_NAME
-                        ;
-standard_type:            T_CHAR
-                        | T_INT
                         ;
 dims:                     dims dim
                         | %empty {}
@@ -153,51 +210,8 @@ initializer:              ASSIGN init_value
 init_value:               expression
                         | L_BRACE init_values R_BRACE
                         ;
-expression:               expression OR_OP expression
-                        | expression AND_OP expression
-                        | expression EQU_OP expression
-                        | expression INEQU_OP expression
-                        | expression SUG_OP expression
-                        | expression MINUS_OP expression
-                        | expression PLUS_OP expression
-                        | expression MUL_OP expression
-                        | expression DIV_OP expression
-                        | NOT_OP expression
-                        /**
-                        | T_INCDEC variable
-                        | variable T_INCDEC
-                        **/
-                        | variable
-                        | variable L_PAREN expression_list R_PAREN
-                        | T_LENGTH L_PAREN general_expression R_PAREN
-                        | constant
-                        | L_PAREN general_expression R_PAREN
-                        | L_PAREN standard_type R_PAREN
-                        | listexpression
-                        ;
-variable:                 variable L_BRACK general_expression R_BRACK
-                        | decltype M_NAME
-                        ;
-general_expression:       general_expression T_COMMA general_expression
-                        | assignment
-                        ;
-assignment:               variable ASSIGN assignment
-                        | expression
-                        ;
-expression_list:          general_expression
-                        | %empty {}
-                        ;
-listexpression:           L_BRACK expression_list R_BRACK
-                        ;
 init_values:              init_values COMMA init_value
                         | init_value
-                        ;
-var_declaration:          typename variabledefs SEMICOLON
-                        ;
-variabledefs:             variabledefs COMMA variabledef
-                        | variabledef
-                        ;
-variabledef:              listspec M_NAME dims/****/
                         ;
 fields:                   fields field
                         | field
@@ -216,18 +230,7 @@ init_variabledefs:        init_variabledefs COMMA init_variabledef
                         ;
 init_variabledef:         variabledef initializer
                         ;
-func_declaration:       full_func_declaration
-                        ;
-full_func_declaration:    full_par_func_header L_BRACE decl_statements R_BRACE
-                        ;
-full_par_func_header:     func_header_start L_PAREN parameter_list R_PAREN
-                        ;
-parameter_list:           parameter_list COMMA typename pass_variabledef
-                        | typename pass_variabledef
-                        ;
-pass_variabledef:         variabledef
-                        | M_NAME
-                        ;
+
 decl_statements:          declarations statements
                         | declarations
                         | statements
@@ -235,19 +238,6 @@ decl_statements:          declarations statements
                         ;
 declarations:             declarations decltype typename variabledefs SEMICOLON
                         | decltype typename variabledefs SEMICOLON
-                        ;
-statements:               statements statement
-                        | statement
-                        ;
-statement:                expression_statement
-                        | if_statement
-                        | while_statement
-                        | for_statement
-                        | switch_statement
-                        | return_statement
-                        | comp_statement
-                        | BREAK SEMICOLON
-                        | SEMICOLON
                         ;
 expression_statement:     general_expression SEMICOLON
                         ;

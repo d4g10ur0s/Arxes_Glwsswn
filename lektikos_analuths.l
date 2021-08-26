@@ -1,8 +1,8 @@
 %{
 
+#include "termatika.h"
   #include <stdio.h>
   #include <stdlib.h>
-  #include "termatika.h"
   #include <unistd.h>
   #include <math.h>
   #include <string.h>
@@ -25,9 +25,10 @@ LETTER                          [a-zA-Z]
 DIGIT                           [0-9]
 NUM                             {DIGIT}+
 NAME                            {LETTER}+
-ALPHANUM                        \"({NAME}|{NUM})\"
+ALPHANUM                        ({LETTER}|{DIGIT})
 WHITESPACE                      [ /t]
 NEWLINE                         [ /n]
+ID                            ({LETTER}+ {DIGIT}*)
 
 %%
 
@@ -82,16 +83,16 @@ NEWLINE                         [ /n]
 
   /* ta dika mas */
 
-{LETTER}                                                  {token_print(LETTER); return LETTER;}
-{DIGIT}                                                   {token_print(DIGIT); return DIGIT;}
-{NUM}                                                     {token_print(NUM); return NUM;}
-{NAME}                                                    {token_print(NAME); return M_NAME;}
-{ALPHANUM}                                                {token_print(NAME); return M_NAME;}
+{LETTER}                                                {token_print(LETTER); return LETTER;}
+{DIGIT}                                                 {token_print(DIGIT); return DIGIT;}
+{NUM}                                                   {token_print(NUM); return NUM;}
+{NAME}                                                  {token_print(NAME); return M_NAME;}
+{ALPHANUM}                                              {token_print(NAME); return M_NAME;}
 
-<<EOF>>                                                   {token_print(EOF); return 0;}
-{WHITESPACE}                                              {}
-NEWLINE                                                   {line_num++;}
-.                                                         {yyerror("Illegal character", 0); yyless(1);}
+<<EOF>>                                                 {token_print(EOF); return 0;}
+{WHITESPACE}                                            {}
+NEWLINE                                                 {line_num++;}
+.                                                       {yyerror("Illegal character", 0); yyless(1);}
 
 
 
@@ -104,20 +105,22 @@ int main(int argc, char *argv[]){
 
     if(argc > 1){
         yyin = fopen(argv[1], "r");
+        //an to arxeio den yparxei error
         if (yyin == NULL){
             perror ("Error opening file"); return -1;
         }
     }
-
+    //lektikh analysh
     do{
 		token = yylex();
     }while(token != T_EOF);
-
+    //apari8mhsh errors
     if(error_count > 0){
         printf("Failed to analyze the program due to %d errors\n", error_count);
     }else{
         printf("Program analyzed successfully\n");
     }
+    //kleisimo programmatos
     fclose(yyin);
     yyterminate();
 }
