@@ -12,7 +12,7 @@
   int error_count = 0;
 
   extern int yylval;
-
+  void yyerror(char *message, int type);
   void token_print(int token_id);
 %}
 
@@ -24,11 +24,11 @@
 LETTER                          [a-zA-Z]
 DIGIT                           [0-9]
 NUM                             {DIGIT}+
-NAME                            {LETTER}+
-ALPHANUM                        ({LETTER}|{DIGIT})
+ID                              ({LETTER}+{DIGIT}+|{DIGIT}+{LETTER}+)*
+ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
+COMMENT                         {ALPHANUM}+
 WHITESPACE                      [ /t]
 NEWLINE                         [ /n]
-ID                            ({LETTER}+ {DIGIT}*)
 
 %%
 
@@ -86,12 +86,13 @@ ID                            ({LETTER}+ {DIGIT}*)
 {LETTER}                                                {token_print(LETTER); return LETTER;}
 {DIGIT}                                                 {token_print(DIGIT); return DIGIT;}
 {NUM}                                                   {token_print(NUM); return NUM;}
-{NAME}                                                  {token_print(NAME); return M_NAME;}
-{ALPHANUM}                                              {token_print(NAME); return M_NAME;}
+{ID}                                                    {token_print(ID); return ID;}
+{ALPHANUM}                                              {token_print(ALPHANUM); return ALPHANUM;}
+{COMMENT}                                               {token_print(COMMENT); return COMMENT;}
 
 <<EOF>>                                                 {token_print(EOF); return 0;}
 {WHITESPACE}                                            {}
-NEWLINE                                                 {line_num++;}
+{NEWLINE}                                               {yylineno++;}
 .                                                       {yyerror("Illegal character", 0); yyless(1);}
 
 
@@ -113,7 +114,7 @@ int main(int argc, char *argv[]){
     //lektikh analysh
     do{
 		token = yylex();
-    }while(token != T_EOF);
+    }while(token != EOF);
     //apari8mhsh errors
     if(error_count > 0){
         printf("Failed to analyze the program due to %d errors\n", error_count);
@@ -126,7 +127,11 @@ int main(int argc, char *argv[]){
 }
 
 /* end main */
-
+void yyerror(char *message, int type)
+{
+    error_count++;
+		printf("-> ERROR at line %d caused by %s: %s\n", lineno, yytext, message);
+}
 /* emfanish termatikwn */
 
 void token_print(int token_id){
