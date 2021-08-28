@@ -6,7 +6,7 @@
 #define INTEGER 5
 #define CHAR 6
 #define START_MAIN 7
-#define ENDMAIN 8
+#define END_MAIN 8
 #define WHILE 9
 #define ENDWHILE 10
 #define FOR 11
@@ -50,3 +50,18 @@
 #define R_BRACK 44
 #define L_BRACE 45// {
 #define R_BRACE 46
+
+#define LETTER 47
+#define DIGIT  48
+#define NUM 49
+#define ID 50
+#define ALPHANUM 51
+#define COMMENT 52
+#define WHITESPACE 53
+#define NEWLINE 54
+#define EOF 0
+
+#ifndef FLEX_DEBUG
+#define FLEX_DEBUG      1
+#define SHOW_TOKENS     1
+#endif

@@ -5,10 +5,7 @@
 #include <string.h>
 
 /** Extern from Flex **/
-extern int lineno, line_init;
-
-extern char str_buf[MAX_STR_CONST];
-extern char* str_buf_ptr;
+extern int lineno;
 
 extern int yylex();
 extern char *yytext;
@@ -24,7 +21,7 @@ int flag_err_type = 0; // 0: Token Error (YYTEXT) || 1: String Error (STRBUF)
 
 /** Bison specific functions **/
 void yyerror(const char *message);
-
+int main(int argc, char *argv[]);
 %}
 
 
@@ -42,8 +39,8 @@ void yyerror(const char *message);
 %token <strval> VARS                "vars"
 %token <intval> INTEGER             "integer constant"
 %token <strval> CHAR                "char"
-%token <strval> START_MAIN          "start_main"
-%token <strval> END_MAIN            "end_main"
+%token <strval> STARTMAIN           "start_main"
+%token <strval> ENDMAIN             "end_main"
 %token <strval> WHILE               "while"
 %token <strval> ENDWHILE            "endwhile"
 %token <strval> FOR                 "for"
@@ -57,17 +54,19 @@ void yyerror(const char *message);
 %token <strval> CASE                "case"
 %token <strval> DEFAULT             "default"
 %token <strval> ENDSWITCH           "endswitch"
+%token <strval> CONTINUE            "continue"
 %token <strval> BREAK               "break"
 %token <strval> TO                  "to"
 %token <strval> STEP                "step"
 %token <strval> RETURN              "return"
+%token <strval> PRINT               "print"
 
 /** TA DIKA MAS **/
 %token <strval> LETTER              "[a-zA-Z]"
-%token <strval> DIGIT               "[0-9]"
-%token <strval> NUM                 "{DIGIT}+"
+%token <intval> DIGIT               "[0-9]"
+%token <intval> NUM                 "{DIGIT}+"
 %token <strval> NAME                "{LETTER}+"
-%token <strval> ALPHANUM            "({LETTER}|{DIGIT})"
+%token <strval> ALPHANUM            "({LETTER}|{DIGIT}|{WHITESPACE})"
 %token <strval> ID                  "({LETTER}+{DIGIT}*)"
 %token <strval> WHITESPACE          "[ /t]"
 %token <strval> NEWLINE             "[ /n]"
@@ -92,21 +91,17 @@ void yyerror(const char *message);
 %token <strval> R_BRACK             "]"
 %token <strval> L_BRACE             "{"
 %token <strval> R_BRACE             "}"
-%token <strval> COMMA               ","
 
 /** END OF FILE **/
 %token <strval> T_EOF 0             "end of file"
 
 
-%type <strval> program multiple_func_declaration  global_declaration global_declarations typename standard_type listspec dims
-%type <strval> id_list initializer init_value expression variable general_expression assignment expression_list listexpression
-%type <strval> init_values var_declaration
-%type <strval> parameter_types
-%type <strval> init_variabledefs init_variabledef func_declaration full_func_declaration
-%type <strval> full_par_func_header parameter_list decl_statements declarations decltype
-%type <strval> statements statement expression_statement if_statement if_tail while_statement for_statement switch_statement switch_tail decl_cases
-%type <strval> casestatements casestatement single_casestatement return_statement in_list in_item out_list out_item comp_statement main_function main_header
-%type <strval> constant
+%type <strval> program typename var_declaration vars_declaration variable main_program main_content
+%type <strval> multiple_func_declaration func_declaration full_par_func_header parameter_list
+%type <strval> command_list command assignment expression logic_expression
+%type <strval> if_statement if_tail switch_statement switch_tail case_statement print_statement
+%type <strval> while_statement for_statement counter constant
+%type <strval> comments comment_end
 
 %left COMMA
 %right ASSIGN
@@ -129,38 +124,43 @@ program:                                              PROGRAM ID NEWLINE multipl
 
 multiple_func_declaration:                            func_declaration
                                                     | multiple_func_declaration NEWLINE func_declaration
-                                                    | %empty {}
+                                                    | {}
                                                     ;
-func_declaration:                                     FUNCTION full_par_func_header NEWLINE decl_statements command_list RETURN to_ret END_FUNCTION
+func_declaration:                                     FUNCTION full_par_func_header NEWLINE var_declaration command_list return_statement ENDFUNCTION
+                                                    ;
+return_statement:                                     RETURN to_ret SEMICOLON
+                                                    ;
+to_ret:                                               ID
+                                                    | variable
+                                                    | constant
                                                     ;
 full_par_func_header:                                 ID L_PAREN parameter_list R_PAREN
                                                     ;
 parameter_list:                                       parameter_list COMMA typename ID
                                                     | typename ID
-                                                    | %empty {}
+                                                    | {}
                                                     ;
 typename:                                             CHAR
                                                     | INTEGER
                                                     ;
 var_declaration:                                      VARS typename ID
                                                     | VARS typename ID L_BRACK NUM R_BRACK
-                                                    | %empty {}
+                                                    | {}
                                                     ;
 vars_declaration:                                     vars_declaration COMMA var_declaration SEMICOLON
                                                     | var_declaration SEMICOLON
-                                                    | %empty {}
+                                                    | {}
                                                     ;
 command_list:                                         command_list NEWLINE command
                                                     | command
-                                                    | %empty {}
+                                                    | {}
                                                     ;
-command:                                              assign_statement
+command:                                              assignment
                                                     | if_statement
                                                     | while_statement
                                                     | for_statement
                                                     | switch_statement
                                                     | return_statement
-                                                    | comp_statement
                                                     | CONTINUE SEMICOLON
                                                     | BREAK SEMICOLON
                                                     | SEMICOLON
@@ -176,17 +176,22 @@ expression:                                           expression MINUS_OP expres
                                                     | variable
                                                     | constant
                                                     | L_PAREN expression R_PAREN
-                                                    | %empty {}
+                                                    | {}
                                                     ;
 logic_expression:                                     expression OR_OP expression
                                                     | expression AND_OP expression
                                                     | expression EQU_OP EQU_OP expression
-                                                    | expression INEQU_OP expression
+                                                    | expression INEQ_OP expression
                                                     | expression SUG_OP expression
                                                     | NOT_OP expression
                                                     ;
-
-
+constant:                                             i_constant
+                                                    | c_constant
+                                                    ;
+i_constant:                                           INTEGER
+                                                    ;
+c_constant:                                           CHAR
+                                                    ;
 variable:                                             typename ID
                                                     ;
 if_statement:                                         IF L_PAREN logic_expression R_PAREN THEN
@@ -210,92 +215,33 @@ for_statement:                                        FOR counter ':'ASSIGN NUM 
                                                     ;
 counter:                                              ID
                                                     ;
+switch_statement:                                     SWITCH L_PAREN expression R_PAREN NEWLINE switch_tail
+                                                    ;
+switch_tail:                                          case_statement
+                                                      NEWLINE command_list
+                                                      NEWLINE switch_tail
+                                                    | DEFAULT':' NEWLINE
+                                                      command_list
+                                                      ENDSWITCH
+                                                    | ENDSWITCH
+                                                    ;
+case_statement:                                       CASE L_PAREN expression R_PAREN':'
+                                                    ;
+comments:                                             '%'ALPHANUM comment_end
+                                                    ;
+comment_end:                                          ALPHANUM
+                                                    ;
+main_program:                                         STARTMAIN NEWLINE
+                                                      main_content NEWLINE
+                                                      ENDMAIN
+                                                    ;
+main_content:                                         command_list
+                                                    | vars_declaration NEWLINE
+                                                      command_list
+                                                    ;
+print_statement:                                      PRINT L_PAREN '\"' ALPHANUM '\"' R_PAREN SEMICOLON
+                                                    ;
 
-/**exoun elegx8ei**/
-
-global_declarations:      global_declarations global_declaration
-                        | %empty {}
-                        ;
-global_declaration:     global_var_declaration
-                        | func_declaration
-                        ;
-dims:                     dims dim
-                        | %empty {}
-                        ;
-dim:                      T_LBRACK T_ICONST T_RBRACK
-                        | T_LBRACK T_RBRACK
-                        ;
-id_list:                  id_list COMMA M_NAME initializer
-                        | M_NAME
-                          initializer
-                        ;
-initializer:              ASSIGN init_value
-                        | %empty {}
-init_value:               expression
-                        | L_BRACE init_values R_BRACE
-                        ;
-init_values:              init_values COMMA init_value
-                        | init_value
-                        ;
-fields:                   fields field
-                        | field
-                        ;
-field:                    var_declaration
-                        ;
-func_header_start:        typename listspec M_NAME
-                        ;
-parameter_types:          parameter_types COMMA typename pass_list_dims
-                        | typename pass_list_dims
-                        ;
-pass_list_dims:         listspec dims
-                        ;
-init_variabledefs:        init_variabledefs COMMA init_variabledef
-                        | init_variabledef
-                        ;
-init_variabledef:         variabledef initializer
-                        ;
-
-decl_statements:          declarations statements
-                        | declarations
-                        | statements
-                        | %empty {}
-                        ;
-declarations:             declarations decltype typename variabledefs SEMICOLON
-                        | decltype typename variabledefs SEMICOLON
-                        ;
-expression_statement:     general_expression SEMICOLON
-                        ;
-optexpr:                  general_expression
-                        | %empty {}
-                        ;
-switch_statement:         SWITCH L_PAREN
-                          general_expression R_PAREN switch_tail
-                        ;
-switch_tail:              L_BRACE decl_cases R_BRACE
-                        | single_casestatement
-                        ;
-decl_cases:               declarations casestatements
-                        | declarations
-                        | casestatements
-                        | %empty {}
-                        ;
-casestatements:           casestatements casestatement
-                        | casestatement
-                        ;
-casestatement:            CASE constant casestatement
-                        | CASE constant statements
-                        | DEFAULT COLON statements
-                        ;
-single_casestatement:     CASE constant single_casestatement
-                        | CASE constant statement
-                        ;
-return_statement:         RETURN optexpr SEMICOLON
-                        ;
-comp_statement:           L_BRACE decl_statements R_BRACE
-                        ;
-main_function:            main_header
-                            L_BRACE decl_statements R_BRACE
-                        ;
 %%
 
 int main(int argc, char *argv[]){
