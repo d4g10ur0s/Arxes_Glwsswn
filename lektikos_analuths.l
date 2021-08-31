@@ -21,10 +21,10 @@
 %option case-insensitive
 %option yylineno
 
-LETTER                          [a-zA-Z]
+LETTER                          [a-zA-Z]{1}
 DIGIT                           [0-9]
 NUM                             {DIGIT}+
-ID                              ({LETTER}+{DIGIT}+|{DIGIT}+{LETTER}+)*
+ID                              ([a-zA-Z]+|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*
 ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 COMMENT                         {ALPHANUM}+
 WHITESPACE                      [ /t]
