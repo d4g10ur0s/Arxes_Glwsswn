@@ -1,17 +1,17 @@
 %{
 
-#include "termatika.h"
   #include <stdio.h>
   #include <stdlib.h>
   #include <unistd.h>
   #include <math.h>
   #include <string.h>
+  //#include "termatika.h"
+  #include "y.tab.h"
 
   int lineno=1; // Program's line number
   int line_init=-1; // For multiline comments & strings
   extern int error_count ;
 
-  extern int yylval;
   void yyerror(char *message, int type);
   void token_print(int token_id);
 %}
@@ -24,10 +24,9 @@ LETTER                          [a-zA-Z]{1}
 DIGIT                           [0-9]
 NUM                             {DIGIT}+
 ID                              ([a-zA-Z]+|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*
-WHITESPACE                      [" "]
-NEWLINE                         [\n]|[\r\n]
+WHITESPACE                      " "|\t
+NEWLINE                         \n|\r\n
 ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
-COMMENT                         {ALPHANUM}+
 
 %%
 
@@ -37,8 +36,8 @@ COMMENT                         {ALPHANUM}+
 "VARS"                                                  {token_print(VARS); return VARS;}
 "INTEGER"                                               {token_print(INTEGER); return INTEGER;}
 "CHAR"                                                  {token_print(CHAR); return CHAR;}
-"STARTMAIN"                                             {token_print(START_MAIN); return START_MAIN;}
-"ENDMAIN"                                               {token_print(END_MAIN); return END_MAIN;}
+"STARTMAIN"                                             {token_print(STARTMAIN); return STARTMAIN;}
+"ENDMAIN"                                               {token_print(ENDMAIN); return ENDMAIN;}
 "WHILE"                                                 {token_print(WHILE); return WHILE;}
 "ENDWHILE"                                              {token_print(ENDWHILE); return ENDWHILE;}
 "FOR"                                                   {token_print(FOR); return FOR;}
@@ -87,7 +86,6 @@ COMMENT                         {ALPHANUM}+
 {NUM}                                                   {token_print(NUM); return NUM;}
 {ID}                                                    {token_print(ID); return ID;}
 {ALPHANUM}                                              {token_print(ALPHANUM); return ALPHANUM;}
-{COMMENT}                                               {token_print(COMMENT); return COMMENT;}
 
 <<EOF>>                                                 {token_print(EOF); return 0;}
 {WHITESPACE}                                            {token_print(WHITESPACE); return WHITESPACE;}
@@ -98,35 +96,6 @@ COMMENT                         {ALPHANUM}+
 
 %%
 
-/* main */
-
-/*
-int main(int argc, char *argv[]){
-    int token;
-
-    if(argc > 1){
-        yyin = fopen(argv[1], "r");
-        //an to arxeio den yparxei error
-        if (yyin == NULL){
-            perror ("Error opening file"); return -1;
-        }
-    }
-    //lektikh analysh
-    do{
-		token = yylex();
-    }while(token != EOF);
-    //apari8mhsh errors
-    if(error_count > 0){
-        printf("Failed to analyze the program due to %d errors\n", error_count);
-    }else{
-        printf("Program analyzed successfully\n");
-    }
-    //kleisimo programmatos
-    fclose(yyin);
-    yyterminate();
-}
-
-*/
 /* end main */
 /*
 void yyerror(char *message, int type)
@@ -138,7 +107,5 @@ void yyerror(char *message, int type)
 /* emfanish termatikwn */
 
 void token_print(int token_id){
-    if(FLEX_DEBUG && SHOW_TOKENS){
         printf("TOKEN FOUND: %s | TOKEN NUMBER: %d | LINE: %d\n", yytext, token_id, lineno);
-    }
 }

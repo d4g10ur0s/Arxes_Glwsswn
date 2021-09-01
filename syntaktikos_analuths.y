@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
+
 /** Extern from Flex **/
 extern int lineno;
 extern int yylineno;
@@ -247,7 +248,7 @@ int main(int argc, char *argv[]){
 
     yyparse();
 
-    //fclose(yyin);
+    fclose(yyin);
 
     return 0;
 }

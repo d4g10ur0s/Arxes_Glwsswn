@@ -5,8 +5,8 @@
 #define VARS 4
 #define INTEGER 5
 #define CHAR 6
-#define START_MAIN 7
-#define END_MAIN 8
+#define STARTMAIN 7
+#define ENDMAIN 8
 #define WHILE 9
 #define ENDWHILE 10
 #define FOR 11
