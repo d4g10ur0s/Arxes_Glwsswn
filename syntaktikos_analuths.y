@@ -3,17 +3,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <ctype.h>
 
 /** Extern from Flex **/
 extern int lineno;
+extern int yylineno;
 
 extern int yylex();
 extern char *yytext;
 extern FILE *yyin;
 extern FILE *yyout;
-
-extern void yyterminate();
-
 
 /** Bison specific variables **/
 int error_count = 0;
@@ -33,75 +32,67 @@ int main(int argc, char *argv[]);
 }
 
 /** TA THS GLWSSAS **/
-%token <strval> PROGRAM             "program"
-%token <strval> FUNCTION            "function"
-%token <strval> ENDFUNCTION         "endfunction"
-%token <strval> VARS                "vars"
-%token <intval> INTEGER             "integer constant"
-%token <strval> CHAR                "char"
-%token <strval> STARTMAIN           "start_main"
-%token <strval> ENDMAIN             "end_main"
-%token <strval> WHILE               "while"
-%token <strval> ENDWHILE            "endwhile"
-%token <strval> FOR                 "for"
-%token <strval> ENDFOR              "endfor"
-%token <strval> IF                  "if"
-%token <strval> THEN                "then"
-%token <strval> ELSEIF              "elseif"
-%token <strval> ELSE                "else"
-%token <strval> ENDIF               "endif"
-%token <strval> SWITCH              "switch"
-%token <strval> CASE                "case"
-%token <strval> DEFAULT             "default"
-%token <strval> ENDSWITCH           "endswitch"
-%token <strval> CONTINUE            "continue"
-%token <strval> BREAK               "break"
-%token <strval> TO                  "to"
-%token <strval> STEP                "step"
-%token <strval> RETURN              "return"
-%token <strval> PRINT               "print"
+%token  PROGRAM             "program"
+%token  FUNCTION            "function"
+%token  ENDFUNCTION         "endfunction"
+%token  VARS                "vars"
+%token  INTEGER             "integer constant"
+%token  CHAR                "char"
+%token  STARTMAIN           "start_main"
+%token  ENDMAIN             "end_main"
+%token  WHILE               "while"
+%token  ENDWHILE            "endwhile"
+%token  FOR                 "for"
+%token  ENDFOR              "endfor"
+%token  IF                  "if"
+%token  THEN                "then"
+%token  ELSEIF              "elseif"
+%token  ELSE                "else"
+%token  ENDIF               "endif"
+%token  SWITCH              "switch"
+%token  CASE                "case"
+%token  DEFAULT             "default"
+%token  ENDSWITCH           "endswitch"
+%token  CONTINUE            "continue"
+%token  BREAK               "break"
+%token  TO                  "to"
+%token  STEP                "step"
+%token  RETURN              "return"
+%token  PRINT               "print"
 
 /** TA DIKA MAS **/
-%token <strval> LETTER              "[a-zA-Z]"
-%token <intval> DIGIT               "[0-9]"
-%token <intval> NUM                 "{DIGIT}+"
-%token <strval> NAME                "{LETTER}+"
-%token <strval> ALPHANUM            "({LETTER}|{DIGIT}|{WHITESPACE})"
-%token <strval> ID                  "({LETTER}+{DIGIT}*)"
-%token <strval> WHITESPACE          "[ /t]"
-%token <strval> NEWLINE             "[ /n]"
+%token  WHITESPACE          "[ /t]"
+%token  NEWLINE             "[ /n]"
+%token  LETTER              "[a-zA-Z]"
+%token  DIGIT               "[0-9]"
+%token  NUM                 "{DIGIT}+"
+%token  NAME                "{LETTER}+"
+%token  ALPHANUM            "({LETTER}|{DIGIT}|{WHITESPACE})"
+%token  ID                  "({LETTER}+{DIGIT}*)"
 
 /** TELESTES **/
-%token <strval> OR_OP               "||"
-%token <strval> AND_OP              "&&"
-%token <strval> EQ_OP               "=="
-%token <strval> INEQ_OP             "!="
-%token <strval> SUG_OP              "<= ,>=, >, <"
-%token <strval> NOT_OP              "!"
-%token <strval> MINUS_OP            "-"
-%token <strval> PLUS_OP             "+"
-%token <strval> MUL_OP              "*"
-%token <strval> DIV_OP              "/"
-%token <strval> L_PAREN             "("
-%token <strval> R_PAREN             ")"
-%token <strval> SEMICOLON           ";"
-%token <strval> COMMA               ","
-%token <strval> ASSIGN              "="
-%token <strval> L_BRACK             "["
-%token <strval> R_BRACK             "]"
-%token <strval> L_BRACE             "{"
-%token <strval> R_BRACE             "}"
+%token  OR_OP               "||"
+%token  AND_OP              "&&"
+%token  EQ_OP               "=="
+%token  INEQ_OP             "!="
+%token  SUG_OP              "<= ,>=, >, <"
+%token  NOT_OP              "!"
+%token  MINUS_OP            "-"
+%token  PLUS_OP             "+"
+%token  MUL_OP              "*"
+%token  DIV_OP              "/"
+%token  L_PAREN             "("
+%token  R_PAREN             ")"
+%token  SEMICOLON           ";"
+%token  COMMA               ","
+%token  ASSIGN              "="
+%token  L_BRACK             "["
+%token  R_BRACK             "]"
+%token  L_BRACE             "{"
+%token  R_BRACE             "}"
 
 /** END OF FILE **/
-%token <strval> T_EOF 0             "end of file"
-
-
-%type <strval> program typename var_declaration vars_declaration variable main_program main_content
-%type <strval> multiple_func_declaration func_declaration full_par_func_header parameter_list
-%type <strval> command_list command assignment expression logic_expression
-%type <strval> if_statement if_tail switch_statement switch_tail case_statement print_statement
-%type <strval> while_statement for_statement counter constant
-%type <strval> comments comment_end
+%token  T_EOF 0             "end of file"
 
 %left COMMA
 %right ASSIGN
@@ -116,13 +107,18 @@ int main(int argc, char *argv[]);
 %nonassoc LOWER_THAN_ELSE
 %nonassoc T_ELSE
 
-%start program
-
 %%
-program:                                              PROGRAM ID NEWLINE multiple_func_declaration main_program
+program:                                              PROGRAM optional_space_or_newline ID optional_space_or_newline
+                                                      multiple_func_declaration optional_space_or_newline
+                                                      main_program
+                                                    ;
+optional_space_or_newline:                            NEWLINE optional_space_or_newline
+                                                    | WHITESPACE optional_space_or_newline
+                                                    | {}
                                                     ;
 
-multiple_func_declaration:                            func_declaration
+
+multiple_func_declaration:                            func_declaration NEWLINE
                                                     | multiple_func_declaration NEWLINE func_declaration
                                                     | {}
                                                     ;
@@ -169,7 +165,7 @@ command:                                              assignment
 assignment:                                           variable ASSIGN expression SEMICOLON
                                                     ;
 expression:                                           expression MINUS_OP expression
-                                                    | expression PLUS_OP expression {$$ = $1 + $3}
+                                                    | expression PLUS_OP expression
                                                     | expression MUL_OP expression
                                                     | expression DIV_OP expression
                                                     | logic_expression
@@ -227,17 +223,13 @@ switch_tail:                                          case_statement
                                                     ;
 case_statement:                                       CASE L_PAREN expression R_PAREN':'
                                                     ;
-comments:                                             '%'ALPHANUM comment_end
-                                                    ;
-comment_end:                                          ALPHANUM
-                                                    ;
-main_program:                                         STARTMAIN NEWLINE
-                                                      main_content NEWLINE
+main_program:                                         STARTMAIN optional_space_or_newline
+                                                      main_content optional_space_or_newline
                                                       ENDMAIN
                                                     ;
 main_content:                                         command_list
-                                                    | vars_declaration NEWLINE
-                                                      command_list
+                                                    | vars_declaration optional_space_or_newline command_list
+                                                    | {}
                                                     ;
 print_statement:                                      PRINT L_PAREN '\"' ALPHANUM '\"' R_PAREN SEMICOLON
                                                     ;
@@ -245,11 +237,6 @@ print_statement:                                      PRINT L_PAREN '\"' ALPHANU
 %%
 
 int main(int argc, char *argv[]){
-
-    if(!(hashtbl = hashtbl_create(10, NULL))) {
-        fprintf(stderr, "ERROR: hashtbl_create() failed!\n");
-        exit(EXIT_FAILURE);
-    }
 
     if(argc > 1){
         yyin = fopen(argv[1], "r");
@@ -260,34 +247,12 @@ int main(int argc, char *argv[]){
 
     yyparse();
 
-    hashtbl_get(hashtbl, scope); // Retrieve the last table (Scope 0);
-    hashtbl_destroy(hashtbl);
-    fclose(yyin);
+    //fclose(yyin);
 
-
-    if(error_count > 0){
-        printf("Syntax Analysis failed due to %d errors\n", error_count);
-    }else{
-        printf("Syntax Analysis completed successfully.\n");
-    }
     return 0;
 }
 
 
-void yyerror(const char *message)
-{
-    error_count++;
-
-    if(flag_err_type==0){
-        printf("-> ERROR at line %d caused by %s : %s\n", lineno, yytext, message);
-    }else if(flag_err_type==1){
-        *str_buf_ptr = '\0'; // String or Comment Error. Cleanup old chars stored in buffer.
-        printf("-> ERROR at line %d near \"%s\": %s\n", lineno, str_buf, message);
-    }
-    flag_err_type = 0; // Reset flag_err_type to default.
-    if(MAX_ERRORS <= 0) return;
-    if(error_count == MAX_ERRORS){
-        printf("Max errors (%d) detected. ABORTING...\n", MAX_ERRORS);
-        exit(-1);
-    }
+void yyerror(const char *message) {
+    fprintf(stderr, "\nline %d :%s \n",yylineno, message);
 }

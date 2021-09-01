@@ -9,7 +9,7 @@
 
   int lineno=1; // Program's line number
   int line_init=-1; // For multiline comments & strings
-  int error_count = 0;
+  extern int error_count ;
 
   extern int yylval;
   void yyerror(char *message, int type);
@@ -18,17 +18,16 @@
 
 
 %option noyywrap
-%option case-insensitive
 %option yylineno
 
 LETTER                          [a-zA-Z]{1}
 DIGIT                           [0-9]
 NUM                             {DIGIT}+
 ID                              ([a-zA-Z]+|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*
+WHITESPACE                      [" "]
+NEWLINE                         [\n]|[\r\n]
 ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 COMMENT                         {ALPHANUM}+
-WHITESPACE                      [ /t]
-NEWLINE                         [ /n]
 
 %%
 
@@ -38,8 +37,8 @@ NEWLINE                         [ /n]
 "VARS"                                                  {token_print(VARS); return VARS;}
 "INTEGER"                                               {token_print(INTEGER); return INTEGER;}
 "CHAR"                                                  {token_print(CHAR); return CHAR;}
-"START_MAIN"                                            {token_print(START_MAIN); return START_MAIN;}
-"END_MAIN"                                              {token_print(END_MAIN); return END_MAIN;}
+"STARTMAIN"                                             {token_print(START_MAIN); return START_MAIN;}
+"ENDMAIN"                                               {token_print(END_MAIN); return END_MAIN;}
 "WHILE"                                                 {token_print(WHILE); return WHILE;}
 "ENDWHILE"                                              {token_print(ENDWHILE); return ENDWHILE;}
 "FOR"                                                   {token_print(FOR); return FOR;}
@@ -91,8 +90,8 @@ NEWLINE                         [ /n]
 {COMMENT}                                               {token_print(COMMENT); return COMMENT;}
 
 <<EOF>>                                                 {token_print(EOF); return 0;}
-{WHITESPACE}                                            {}
-{NEWLINE}                                               {yylineno++;}
+{WHITESPACE}                                            {token_print(WHITESPACE); return WHITESPACE;}
+{NEWLINE}                                               {token_print(NEWLINE); return NEWLINE;}
 .                                                       {yyerror("Illegal character", 0); yyless(1);}
 
 
@@ -101,6 +100,7 @@ NEWLINE                         [ /n]
 
 /* main */
 
+/*
 int main(int argc, char *argv[]){
     int token;
 
@@ -126,12 +126,15 @@ int main(int argc, char *argv[]){
     yyterminate();
 }
 
+*/
 /* end main */
+/*
 void yyerror(char *message, int type)
 {
     error_count++;
 		printf("-> ERROR at line %d caused by %s: %s\n", lineno, yytext, message);
 }
+*/
 /* emfanish termatikwn */
 
 void token_print(int token_id){
