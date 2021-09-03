@@ -133,15 +133,15 @@ to_ret:                                               variable
                                                     ;
 full_par_func_header:                                 ID optional_space_or_newline L_PAREN optional_space_or_newline parameter_list optional_space_or_newline R_PAREN
                                                     ;
-parameter_list:                                       parameter_list optional_space_or_newline COMMA optional_space_or_newline typename optional_space_or_newline ID optional_space_or_newline
-                                                    | typename optional_space_or_newline ID optional_space_or_newline
+parameter_list:                                       parameter_list optional_space_or_newline COMMA variable optional_space_or_newline
+                                                    | variable optional_space_or_newline
+                                                    |
                                                     ;
 typename:                                             CHAR
                                                     | INTEGER
                                                     ;
-var_declaration:                                      VARS  optional_space_or_newline typename optional_space_or_newline variables optional_space_or_newline SEMICOLON
-                                                    | VARS  optional_space_or_newline typename optional_space_or_newline variable optional_space_or_newline SEMICOLON
-                                                    |
+var_declaration:                                      VARS optional_space_or_newline typename optional_space_or_newline variables optional_space_or_newline SEMICOLON
+                                                    | var_declaration optional_space_or_newline VARS optional_space_or_newline typename optional_space_or_newline variables optional_space_or_newline SEMICOLON
                                                     ;
 variable:                                             ID optional_space_or_newline
                                                     | ID optional_space_or_newline L_BRACK optional_space_or_newline NUM optional_space_or_newline R_BRACK optional_space_or_newline
@@ -167,15 +167,15 @@ command:                                              assignment
                                                     ;
 assignment:                                           variable optional_space_or_newline ASSIGN expression optional_space_or_newline SEMICOLON optional_space_or_newline
                                                     ;
-expression:                                           expression MINUS_OP expression
-                                                    | expression PLUS_OP expression
-                                                    | expression MUL_OP expression
-                                                    | expression DIV_OP expression
-                                                    | logic_expression
-                                                    | variable
-                                                    | constant
-                                                    | L_PAREN expression R_PAREN
-                                                    | {}
+expression:                                           expression optional_space_or_newline MINUS_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline PLUS_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline MUL_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline DIV_OP optional_space_or_newline expression
+                                                    | logic_expression optional_space_or_newline
+                                                    | variable optional_space_or_newline
+                                                    | constant optional_space_or_newline
+                                                    | L_PAREN optional_space_or_newline expression optional_space_or_newline R_PAREN optional_space_or_newline
+                                                    |
                                                     ;
 logic_expression:                                     expression OR_OP expression
                                                     | expression AND_OP expression
@@ -187,9 +187,9 @@ logic_expression:                                     expression OR_OP expressio
 constant:                                             i_constant
                                                     | c_constant
                                                     ;
-i_constant:                                           INTEGER
+i_constant:                                           NUM
                                                     ;
-c_constant:                                           CHAR
+c_constant:                                           ALPHANUM
                                                     ;
 if_statement:                                         IF L_PAREN logic_expression R_PAREN THEN
                                                       NEWLINE command_list
@@ -226,7 +226,7 @@ case_statement:                                       CASE L_PAREN expression R_
                                                     ;
 main_program:                                         STARTMAIN optional_space_or_newline
                                                       main_content optional_space_or_newline
-                                                      ENDMAIN
+                                                      ENDMAIN optional_space_or_newline
                                                     ;
 main_content:                                         command_list
                                                     | var_declaration optional_space_or_newline command_list optional_space_or_newline
