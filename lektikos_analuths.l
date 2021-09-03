@@ -23,9 +23,9 @@
 LETTER                          [a-zA-Z]{1}
 DIGIT                           [0-9]
 NUM                             {DIGIT}+
-ID                              ([a-zA-Z]+|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*
-WHITESPACE                      " "|\t
-NEWLINE                         \n|\r\n
+ID                              ([a-zA-Z]|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*
+WHITESPACE                      " "
+NEWLINE                         [ \n]|[ \r\n]
 ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 
 %%
@@ -89,7 +89,7 @@ ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 
 <<EOF>>                                                 {token_print(EOF); return 0;}
 {WHITESPACE}                                            {token_print(WHITESPACE); return WHITESPACE;}
-{NEWLINE}                                               {token_print(NEWLINE); return NEWLINE;}
+{NEWLINE}                                               {token_print(NEWLINE); lineno++; return NEWLINE;}
 .                                                       {yyerror("Illegal character", 0); yyless(1);}
 
 

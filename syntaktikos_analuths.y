@@ -62,14 +62,14 @@ int main(int argc, char *argv[]);
 %token  PRINT               "print"
 
 /** TA DIKA MAS **/
-%token  WHITESPACE          "[ /t]"
-%token  NEWLINE             "[ /n]"
+%token  WHITESPACE          "tab"
+%token  NEWLINE             "newline"
 %token  LETTER              "[a-zA-Z]"
 %token  DIGIT               "[0-9]"
 %token  NUM                 "{DIGIT}+"
 %token  NAME                "{LETTER}+"
 %token  ALPHANUM            "({LETTER}|{DIGIT}|{WHITESPACE})"
-%token  ID                  "({LETTER}+{DIGIT}*)"
+%token  ID                  "([a-zA-Z]+|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*"
 
 /** TELESTES **/
 %token  OR_OP               "||"
@@ -113,43 +113,45 @@ program:                                              PROGRAM optional_space_or_
                                                       multiple_func_declaration optional_space_or_newline
                                                       main_program
                                                     ;
-optional_space_or_newline:                            NEWLINE optional_space_or_newline
-                                                    | WHITESPACE optional_space_or_newline
-                                                    | {}
+optional_space_or_newline:                            optional_space_or_newline NEWLINE
+                                                    | optional_space_or_newline WHITESPACE
+                                                    |
                                                     ;
 
 
-multiple_func_declaration:                            func_declaration NEWLINE
+multiple_func_declaration:                            func_declaration optional_space_or_newline
                                                     | multiple_func_declaration NEWLINE func_declaration
-                                                    | {}
+                                                    |
                                                     ;
-func_declaration:                                     FUNCTION full_par_func_header NEWLINE var_declaration command_list return_statement ENDFUNCTION
+func_declaration:                                     FUNCTION optional_space_or_newline full_par_func_header optional_space_or_newline var_declaration command_list return_statement ENDFUNCTION
                                                     ;
 return_statement:                                     RETURN to_ret SEMICOLON
                                                     ;
-to_ret:                                               ID
-                                                    | variable
+to_ret:                                               variable
                                                     | constant
+                                                    |
                                                     ;
-full_par_func_header:                                 ID L_PAREN parameter_list R_PAREN
+full_par_func_header:                                 ID optional_space_or_newline L_PAREN optional_space_or_newline parameter_list optional_space_or_newline R_PAREN
                                                     ;
-parameter_list:                                       parameter_list COMMA typename ID
-                                                    | typename ID
-                                                    | {}
+parameter_list:                                       parameter_list optional_space_or_newline COMMA optional_space_or_newline typename optional_space_or_newline ID optional_space_or_newline
+                                                    | typename optional_space_or_newline ID optional_space_or_newline
                                                     ;
 typename:                                             CHAR
                                                     | INTEGER
                                                     ;
-var_declaration:                                      VARS typename ID
-                                                    | VARS typename ID L_BRACK NUM R_BRACK
-                                                    | {}
+var_declaration:                                      VARS  optional_space_or_newline typename optional_space_or_newline variables optional_space_or_newline SEMICOLON
+                                                    | VARS  optional_space_or_newline typename optional_space_or_newline variable optional_space_or_newline SEMICOLON
+                                                    |
                                                     ;
-vars_declaration:                                     vars_declaration COMMA var_declaration SEMICOLON
-                                                    | var_declaration SEMICOLON
-                                                    | {}
+variable:                                             ID optional_space_or_newline
+                                                    | ID optional_space_or_newline L_BRACK optional_space_or_newline NUM optional_space_or_newline R_BRACK optional_space_or_newline
                                                     ;
-command_list:                                         command_list NEWLINE command
-                                                    | command
+variables:                                            variable
+                                                    | variables optional_space_or_newline COMMA optional_space_or_newline variable optional_space_or_newline
+                                                    |
+                                                    ;
+command_list:                                         command_list optional_space_or_newline command optional_space_or_newline
+                                                    | command optional_space_or_newline
                                                     | {}
                                                     ;
 command:                                              assignment
@@ -163,7 +165,7 @@ command:                                              assignment
                                                     | SEMICOLON
                                                     | print_statement
                                                     ;
-assignment:                                           variable ASSIGN expression SEMICOLON
+assignment:                                           variable optional_space_or_newline ASSIGN expression optional_space_or_newline SEMICOLON optional_space_or_newline
                                                     ;
 expression:                                           expression MINUS_OP expression
                                                     | expression PLUS_OP expression
@@ -188,8 +190,6 @@ constant:                                             i_constant
 i_constant:                                           INTEGER
                                                     ;
 c_constant:                                           CHAR
-                                                    ;
-variable:                                             typename ID
                                                     ;
 if_statement:                                         IF L_PAREN logic_expression R_PAREN THEN
                                                       NEWLINE command_list
@@ -229,8 +229,7 @@ main_program:                                         STARTMAIN optional_space_o
                                                       ENDMAIN
                                                     ;
 main_content:                                         command_list
-                                                    | vars_declaration optional_space_or_newline command_list
-                                                    | {}
+                                                    | var_declaration optional_space_or_newline command_list optional_space_or_newline
                                                     ;
 print_statement:                                      PRINT L_PAREN '\"' ALPHANUM '\"' R_PAREN SEMICOLON
                                                     ;
