@@ -210,9 +210,9 @@ while_statement:                                      WHILE optional_space_or_ne
                                                       optional_space_or_newline command_list
                                                       optional_space_or_newline ENDWHILE
                                                     ;
-for_statement:                                        FOR counter ':'ASSIGN NUM TO NUM STEP NUM NEWLINE
-                                                      command_list
-                                                      NEWLINE ENDFOR
+for_statement:                                        FOR optional_space_or_newline counter ANW_KATW ASSIGN optional_space_or_newline i_constant optional_space_or_newline TO optional_space_or_newline i_constant optional_space_or_newline STEP optional_space_or_newline i_constant optional_space_or_newline
+                                                      command_list optional_space_or_newline
+                                                      ENDFOR
                                                     ;
 counter:                                              ID
                                                     ;

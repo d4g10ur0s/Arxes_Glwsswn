@@ -59,9 +59,5 @@
 #define COMMENT 52
 #define WHITESPACE 53
 #define NEWLINE 54
+#define ANW_KATW 55 // :
 #define EOF 0
-
-#ifndef FLEX_DEBUG
-#define FLEX_DEBUG      1
-#define SHOW_TOKENS     1
-#endif
