@@ -69,7 +69,7 @@ ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 "*"                                                     {token_print(MUL_OP); return MUL_OP;}
 "/"                                                     {token_print(DIV_OP); return DIV_OP;}
 "!"                                                     {token_print(NOT_OP); return NOT_OP;}
-
+":"                                                     {token_print(ANW_KATW); return ANW_KATW;}
 "("                                                     {token_print(L_PAREN); return L_PAREN;}
 ")"                                                     {token_print(R_PAREN); return R_PAREN;}
 ";"                                                     {token_print(SEMICOLON); return SEMICOLON;}

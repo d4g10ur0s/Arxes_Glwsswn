@@ -62,6 +62,7 @@ int main(int argc, char *argv[]);
 %token  PRINT               "print"
 
 /** TA DIKA MAS **/
+%token  ANW_KATW            ":"
 %token  WHITESPACE          "tab"
 %token  NEWLINE             "newline"
 %token  LETTER              "[a-zA-Z]"
@@ -215,17 +216,18 @@ for_statement:                                        FOR counter ':'ASSIGN NUM 
                                                     ;
 counter:                                              ID
                                                     ;
-switch_statement:                                     SWITCH L_PAREN expression R_PAREN NEWLINE switch_tail
+switch_statement:                                     SWITCH optional_space_or_newline L_PAREN optional_space_or_newline logic_expression optional_space_or_newline R_PAREN optional_space_or_newline switch_tail
                                                     ;
 switch_tail:                                          case_statement
-                                                      NEWLINE command_list
-                                                      NEWLINE switch_tail
-                                                    | DEFAULT':' NEWLINE
+                                                      optional_space_or_newline command_list
+                                                      optional_space_or_newline switch_tail
+                                                    | DEFAULT optional_space_or_newline ANW_KATW optional_space_or_newline
                                                       command_list
+                                                      optional_space_or_newline
                                                       ENDSWITCH
                                                     | ENDSWITCH
                                                     ;
-case_statement:                                       CASE L_PAREN expression R_PAREN':'
+case_statement:                                       CASE optional_space_or_newline L_PAREN logic_expression optional_space_or_newline R_PAREN optional_space_or_newline ANW_KATW
                                                     ;
 main_program:                                         STARTMAIN optional_space_or_newline
                                                       main_content optional_space_or_newline
