@@ -6,7 +6,7 @@
   #include <math.h>
   #include <string.h>
   //#include "termatika.h"
-  #include "y.tab.h"
+  #include "syntaktikos_analuths.tab.h"
 
   int lineno=1; // Program's line number
   int line_init=-1; // For multiline comments & strings
@@ -22,7 +22,7 @@
 
 LETTER                          [a-zA-Z]{1}
 DIGIT                           [0-9]
-NUM                             {DIGIT}+
+NUM                             ({DIGIT})*
 ID                              ([a-zA-Z]|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*
 WHITESPACE                      " "
 NEWLINE                         [ \n]|[ \r\n]

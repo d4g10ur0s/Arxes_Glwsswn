@@ -66,7 +66,7 @@ int main(int argc, char *argv[]);
 %token  NEWLINE             "newline"
 %token  LETTER              "[a-zA-Z]"
 %token  DIGIT               "[0-9]"
-%token  NUM                 "{DIGIT}+"
+%token  NUM                 "({DIGIT})*"
 %token  NAME                "{LETTER}+"
 %token  ALPHANUM            "({LETTER}|{DIGIT}|{WHITESPACE})"
 %token  ID                  "([a-zA-Z]+|[a-zA-Z]+[0-9]+|[0-9]+[a-zA-Z]+)*"
@@ -120,12 +120,15 @@ optional_space_or_newline:                            optional_space_or_newline 
 
 
 multiple_func_declaration:                            func_declaration optional_space_or_newline
-                                                    | multiple_func_declaration NEWLINE func_declaration
+                                                    | multiple_func_declaration func_declaration
                                                     |
                                                     ;
-func_declaration:                                     FUNCTION optional_space_or_newline full_par_func_header optional_space_or_newline var_declaration command_list return_statement ENDFUNCTION
+func_declaration:                                     FUNCTION optional_space_or_newline full_par_func_header optional_space_or_newline function_body return_statement optional_space_or_newline ENDFUNCTION optional_space_or_newline
                                                     ;
-return_statement:                                     RETURN to_ret SEMICOLON
+function_body:                                         var_declaration optional_space_or_newline command_list
+                                                    |  command_list
+                                                    ;
+return_statement:                                     RETURN optional_space_or_newline to_ret optional_space_or_newline SEMICOLON
                                                     ;
 to_ret:                                               variable
                                                     | constant
@@ -133,9 +136,8 @@ to_ret:                                               variable
                                                     ;
 full_par_func_header:                                 ID optional_space_or_newline L_PAREN optional_space_or_newline parameter_list optional_space_or_newline R_PAREN
                                                     ;
-parameter_list:                                       parameter_list optional_space_or_newline COMMA variable optional_space_or_newline
-                                                    | variable optional_space_or_newline
-                                                    |
+parameter_list:                                       parameter_list optional_space_or_newline COMMA optional_space_or_newline typename optional_space_or_newline variable optional_space_or_newline
+                                                    | typename optional_space_or_newline variable optional_space_or_newline
                                                     ;
 typename:                                             CHAR
                                                     | INTEGER
@@ -152,14 +154,13 @@ variables:                                            variable
                                                     ;
 command_list:                                         command_list optional_space_or_newline command optional_space_or_newline
                                                     | command optional_space_or_newline
-                                                    | {}
+                                                    |
                                                     ;
 command:                                              assignment
                                                     | if_statement
                                                     | while_statement
                                                     | for_statement
                                                     | switch_statement
-                                                    | return_statement
                                                     | CONTINUE SEMICOLON
                                                     | BREAK SEMICOLON
                                                     | SEMICOLON
@@ -173,7 +174,7 @@ expression:                                           expression optional_space_
                                                     | expression optional_space_or_newline DIV_OP optional_space_or_newline expression
                                                     | logic_expression optional_space_or_newline
                                                     | variable optional_space_or_newline
-                                                    | constant optional_space_or_newline
+                                                    | constant
                                                     | L_PAREN optional_space_or_newline expression optional_space_or_newline R_PAREN optional_space_or_newline
                                                     |
                                                     ;
@@ -188,6 +189,7 @@ constant:                                             i_constant
                                                     | c_constant
                                                     ;
 i_constant:                                           NUM
+                                                    | DIGIT
                                                     ;
 c_constant:                                           ALPHANUM
                                                     ;
