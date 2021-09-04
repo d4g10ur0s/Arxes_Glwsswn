@@ -166,24 +166,25 @@ command:                                              assignment
                                                     | SEMICOLON
                                                     | print_statement
                                                     ;
-assignment:                                           variable optional_space_or_newline ASSIGN expression optional_space_or_newline SEMICOLON optional_space_or_newline
+assignment:                                           variable optional_space_or_newline ASSIGN optional_space_or_newline expression optional_space_or_newline SEMICOLON optional_space_or_newline
                                                     ;
 expression:                                           expression optional_space_or_newline MINUS_OP optional_space_or_newline expression
                                                     | expression optional_space_or_newline PLUS_OP optional_space_or_newline expression
                                                     | expression optional_space_or_newline MUL_OP optional_space_or_newline expression
                                                     | expression optional_space_or_newline DIV_OP optional_space_or_newline expression
-                                                    | logic_expression optional_space_or_newline
                                                     | variable optional_space_or_newline
                                                     | constant
                                                     | L_PAREN optional_space_or_newline expression optional_space_or_newline R_PAREN optional_space_or_newline
                                                     |
                                                     ;
-logic_expression:                                     expression OR_OP expression
-                                                    | expression AND_OP expression
-                                                    | expression EQU_OP EQU_OP expression
-                                                    | expression INEQ_OP expression
-                                                    | expression SUG_OP expression
-                                                    | NOT_OP expression
+logic_expression:                                     expression optional_space_or_newline OR_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline AND_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline EQU_OP EQU_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline INEQ_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline SUG_OP optional_space_or_newline expression
+                                                    | NOT_OP optional_space_or_newline expression
+                                                    | i_constant
+                                                    |
                                                     ;
 constant:                                             i_constant
                                                     | c_constant
@@ -193,20 +194,20 @@ i_constant:                                           NUM
                                                     ;
 c_constant:                                           ALPHANUM
                                                     ;
-if_statement:                                         IF L_PAREN logic_expression R_PAREN THEN
-                                                      NEWLINE command_list
-                                                      NEWLINE if_tail
+if_statement:                                         IF optional_space_or_newline L_PAREN optional_space_or_newline logic_expression optional_space_or_newline R_PAREN optional_space_or_newline THEN
+                                                      optional_space_or_newline command_list
+                                                      optional_space_or_newline if_tail
                                                     ;
-if_tail:                                              ELSEIF L_PAREN logic_expression R_PAREN NEWLINE
-                                                      command_list NEWLINE
+if_tail:                                              ELSEIF optional_space_or_newline L_PAREN optional_space_or_newline logic_expression optional_space_or_newline R_PAREN optional_space_or_newline
+                                                      command_list optional_space_or_newline
                                                       if_tail
-                                                    | ELSE NEWLINE
-                                                      command_list
-                                                      NEWLINE ENDIF
+                                                    | ELSE
+                                                      optional_space_or_newline command_list
+                                                      optional_space_or_newline ENDIF
                                                     ;
-while_statement:                                      WHILE L_PAREN logic_expression R_PAREN
-                                                      NEWLINE command_list
-                                                      NEWLINE ENDWHILE
+while_statement:                                      WHILE optional_space_or_newline L_PAREN optional_space_or_newline logic_expression optional_space_or_newline R_PAREN
+                                                      optional_space_or_newline command_list
+                                                      optional_space_or_newline ENDWHILE
                                                     ;
 for_statement:                                        FOR counter ':'ASSIGN NUM TO NUM STEP NUM NEWLINE
                                                       command_list
@@ -233,7 +234,7 @@ main_program:                                         STARTMAIN optional_space_o
 main_content:                                         command_list
                                                     | var_declaration optional_space_or_newline command_list optional_space_or_newline
                                                     ;
-print_statement:                                      PRINT L_PAREN '\"' ALPHANUM '\"' R_PAREN SEMICOLON
+print_statement:                                      PRINT optional_space_or_newline L_PAREN optional_space_or_newline ALPHANUM optional_space_or_newline R_PAREN optional_space_or_newline SEMICOLON
                                                     ;
 
 %%

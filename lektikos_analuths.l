@@ -55,6 +55,7 @@ ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 "TO"                                                    {token_print(TO); return TO;}
 "STEP"                                                  {token_print(STEP); return STEP;}
 "RETURN"                                                {token_print(RETURN); return RETURN;}
+"PRINT"                                                 {token_print(PRINT); return PRINT;}
 
   /* telestes */
 
@@ -62,7 +63,7 @@ ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 "AND"                                                   {token_print(AND_OP); return AND_OP;}
 "=="                                                    {token_print(EQ_OP); return EQ_OP;}
 "!="                                                    {token_print(INEQ_OP); return INEQ_OP;}
-">=" | "<=" | ">" | "<"                                 {token_print(SUG_OP); return SUG_OP;}
+">="|"<="|">"|"<"                                       {token_print(SUG_OP); return SUG_OP;}
 "+"                                                     {token_print(PLUS_OP); return PLUS_OP;}
 "-"                                                     {token_print(MINUS_OP); return MINUS_OP;}
 "*"                                                     {token_print(MUL_OP); return MUL_OP;}
