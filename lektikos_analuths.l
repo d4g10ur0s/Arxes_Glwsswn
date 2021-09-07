@@ -28,7 +28,22 @@ WHITESPACE                      " "
 NEWLINE                         [ \n]|[ \r\n]
 ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 
+
+
+%x LINECOMMENT
+%x COMMENTS
+
+
 %%
+
+"%"     {BEGIN(LINECOMMENT);}
+"/*"    {BEGIN(COMMENTS);}
+
+<COMMENTS>"*/"   {BEGIN(INITIAL);}
+
+<LINECOMMENT>\n     {token_print(NEWLINE);}{BEGIN(INITIAL);}
+
+<LINECOMMENT>\r\n  {token_print(NEWLINE);}{BEGIN(INITIAL);}
 
 "PROGRAM"                                               {token_print(PROGRAM); return PROGRAM;}
 "FUNCTION"                                              {token_print(FUNCTION); return FUNCTION;}

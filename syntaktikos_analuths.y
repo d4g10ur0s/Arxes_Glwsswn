@@ -115,7 +115,7 @@ program:                                              PROGRAM optional_space_or_
                                                       main_program
                                                     ;
 optional_space_or_newline:                            optional_space_or_newline NEWLINE
-                                                    | optional_space_or_newline WHITESPACE
+                                                    | optional_space_or_newline WHITESPACE 
                                                     |
                                                     ;
 
