@@ -94,6 +94,7 @@ ALPHANUM                        \"({LETTER}|{DIGIT}|{WHITESPACE})*\"
 "]"                                                     {token_print(R_BRACK); return R_BRACK;}
 "{"                                                     {token_print(L_BRACE); return L_BRACE;}
 "}"                                                     {token_print(R_BRACE); return R_BRACE;}
+"^"                                                     {token_print(DYNAMI); return DYNAMI;}
 
   /* ta dika mas */
 

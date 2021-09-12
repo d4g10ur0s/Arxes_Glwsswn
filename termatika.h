@@ -60,4 +60,5 @@
 #define WHITESPACE 53
 #define NEWLINE 54
 #define ANW_KATW 55 // :
+#define DYNAMI 56 //^
 #define EOF 0

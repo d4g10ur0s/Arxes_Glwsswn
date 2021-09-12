@@ -62,6 +62,7 @@ int main(int argc, char *argv[]);
 %token  PRINT               "print"
 
 /** TA DIKA MAS **/
+%token  DYNAMI              "^"
 %token  ANW_KATW            ":"
 %token  WHITESPACE          "tab"
 %token  NEWLINE             "newline"
@@ -135,7 +136,7 @@ to_ret:                                               variable
                                                     | constant
                                                     |
                                                     ;
-full_par_func_header:                                 ID optional_space_or_newline L_PAREN optional_space_or_newline parameter_list optional_space_or_newline R_PAREN
+full_par_func_header:                                 optional_space_or_newline ID optional_space_or_newline L_PAREN optional_space_or_newline parameter_list optional_space_or_newline R_PAREN
                                                     ;
 parameter_list:                                       parameter_list optional_space_or_newline COMMA optional_space_or_newline typename optional_space_or_newline variable optional_space_or_newline
                                                     | typename optional_space_or_newline variable optional_space_or_newline
@@ -166,6 +167,9 @@ command:                                              assignment
                                                     | BREAK SEMICOLON
                                                     | SEMICOLON
                                                     | print_statement
+                                                    | function
+                                                    ;  
+function:                                             ID optional_space_or_newline L_PAREN optional_space_or_newline variables optional_space_or_newline R_PAREN    
                                                     ;
 assignment:                                           variable optional_space_or_newline ASSIGN optional_space_or_newline expression optional_space_or_newline SEMICOLON optional_space_or_newline
                                                     ;
@@ -173,9 +177,11 @@ expression:                                           expression optional_space_
                                                     | expression optional_space_or_newline PLUS_OP optional_space_or_newline expression
                                                     | expression optional_space_or_newline MUL_OP optional_space_or_newline expression
                                                     | expression optional_space_or_newline DIV_OP optional_space_or_newline expression
+                                                    | expression optional_space_or_newline DYNAMI optional_space_or_newline expression
                                                     | variable optional_space_or_newline
                                                     | constant
                                                     | L_PAREN optional_space_or_newline expression optional_space_or_newline R_PAREN optional_space_or_newline
+                                                    | function
                                                     |
                                                     ;
 logic_expression:                                     expression optional_space_or_newline OR_OP optional_space_or_newline expression
